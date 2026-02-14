@@ -105,23 +105,33 @@
       color: #555;
     }
 
-    /* === СЕРДЦА === */
+    /* === СЕРДЦА — ВЗЛЕТАЮЩИЕ МЕДЛЕННО СНИЗУ === */
     .heart {
       position: absolute;
       font-size: 1.8rem;
-      opacity: 0.9;
-      z-index: 1;
-      animation: float 12s infinite ease-in-out;
+      opacity: 0;
+      z-index: 0; /* не перекрывают текст */
+      animation: float 16s infinite ease-out; /* медленнее! */
       cursor: pointer;
       user-select: none;
       text-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
     @keyframes float {
-      0% { transform: translateY(100vh) rotate(0); opacity: 0; }
-      10% { opacity: 0.9; }
-      90% { opacity: 0.6; }
-      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      5% {
+        opacity: 0.8;
+      }
+      90% {
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateY(-120px) rotate(360deg);
+        opacity: 0;
+      }
     }
 
     /* === ЛОПАНЬЕ === */
@@ -268,7 +278,7 @@
 </head>
 <body>
 
-  <!-- Аудио (скрыто) -->
+  <!-- Аудио -->
   <audio id="soundPop" preload="auto">
     <source src="https://www.soundjay.com/misc/sounds/balloon-pop-1.mp3" type="audio/mpeg">
   </audio>
@@ -289,8 +299,8 @@
 
   <!-- Основной текст -->
   <div class="main-message" id="mainMessage">
-    <h1>Моя дорогая Евочка...</h1>
-    <p>Ты — свет в моём мире.<br>Спасибо, что ты есть. 💖 (п.с. сердечки нажимаются)</p>
+    <h1>Моя любовь...</h1>
+    <p>Ты — свет в моём мире.<br>Спасибо, что ты есть. 💖</p>
   </div>
 
   <!-- Фото-секция -->
@@ -307,7 +317,7 @@
 
   <!-- Нижняя кнопка -->
   <div class="bottom-btn">
-    <button class="btn" id="showPhotoBtn">тык сюда 📸</button>
+    <button class="btn" id="showPhotoBtn">Посмотри моё признание 📸</button>
   </div>
 
   <script>
@@ -315,7 +325,6 @@
     const soundPop = document.getElementById('soundPop');
     const soundClick = document.getElementById('soundClick');
     const soundOpen = document.getElementById('soundOpen');
-    const musicBtn = document.getElementById('musicBtn');
 
     function playSound(sound) {
       sound.currentTime = 0;
@@ -330,10 +339,10 @@
     }
 
     // === КНОПКИ ===
-    musicBtn.addEventListener('click', () => {
+    document.getElementById('musicBtn').addEventListener('click', () => {
       playSound(soundClick);
       vibrate(20);
-      musicBtn.textContent = musicBtn.textContent === '♪' ? '⏸' : '♪';
+      this.textContent = this.textContent === '♪' ? '⏸' : '♪';
     });
 
     document.getElementById('showPhotoBtn').addEventListener('click', () => {
@@ -382,18 +391,17 @@
         heart.innerHTML = '❤️';
         heart.style.left = Math.random() * 100 + 'vw';
         heart.style.fontSize = (Math.random() * 20 + 18) + 'px';
-        heart.style.animationDuration = (Math.random() * 8 + 8) + 's';
-        heart.style.animationDelay = Math.random() * 5 + 's';
+        heart.style.animationDuration = (Math.random() * 8 + 12) + 's'; // 12–20 сек — медленно!
+        heart.style.animationDelay = Math.random() * 10 + 's'; // до 10 сек задержки
         heart.style.color = ['#ff4d6d', '#ff758f', '#ff9aa7', '#ffb3c6'][Math.floor(Math.random() * 4)];
 
         heart.addEventListener('click', (e) => {
           playSound(soundPop);
           vibrate(30);
 
-          // Лопаем
           heart.classList.add('pop');
 
-          // Искры (огонь)
+          // Искры
           for (let j = 0; j < 8; j++) {
             const spark = document.createElement('div');
             spark.className = 'spark';
