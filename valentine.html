@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Для тебя, моя любовь ❤️</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffe6ec, #f9d7da);
+      font-family: 'Segoe UI', cursive, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      color: #e74c3c;
+      text-align: center;
+    }
+
+    /* === КОНВЕРТ === */
+    .envelope {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      max-width: 400px;
+      height: 240px;
+      background: #e74c3c;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .envelope::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      background: #c0392b;
+      clip-path: polygon(50% 100%, 0 0, 100% 0);
+    }
+
+    .envelope-text {
+      color: white;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      z-index: 2;
+    }
+
+    .envelope.closed {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8);
+      clip-path: inset(50%);
+    }
+
+    /* === ОСНОВНОЙ ТЕКСТ === */
+    .main-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      opacity: 0;
+      z-index: 10;
+      max-width: 80%;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(231, 76, 60, 0.3);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .main-message.show {
+      animation: revealMessage 1.2s forwards;
+    }
+
+    @keyframes revealMessage {
+      0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+      60% { transform: translate(-50%, -50%) scale(1.05); }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .main-message h1 {
+      font-size: 2.8rem;
+      color: #e74c3c;
+      margin-bottom: 1rem;
+    }
+
+    .main-message p {
+      font-size: 1.4rem;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    /* === СЕРДЦА === */
+    .heart {
+      position: absolute;
+      font-size: 1.8rem;
+      opacity: 0.9;
+      z-index: 1;
+      animation: float 12s infinite ease-in-out;
+      cursor: pointer;
+      user-select: none;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0); opacity: 0; }
+      10% { opacity: 0.9; }
+      90% { opacity: 0.6; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    /* === ЛОПАНЬЕ === */
+    .heart.pop {
+      animation: pop 0.4s forwards;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1) rotate(0); opacity: 1; }
+      50% { transform: scale(1.4) rotate(10deg); opacity: 0.8; }
+      100% { transform: scale(0) rotate(90deg); opacity: 0; }
+    }
+
+    /* === ИСКРЫ (ОГОНЬ) === */
+    .spark {
+      position: absolute;
+      font-size: 0.8rem;
+      opacity: 0;
+      z-index: 3;
+      pointer-events: none;
+      animation: spark 0.8s forwards;
+    }
+
+    @keyframes spark {
+      0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.5); }
+    }
+
+    /* === ВСПЛЫВАЮЩИЙ ТЕКСТ === */
+    .pop-text {
+      position: absolute;
+      font-weight: bold;
+      color: #e74c3c;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 4px rgba(255,255,255,0.8);
+      opacity: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .pop-text.show {
+      animation: popText 1.5s forwards;
+    }
+
+    @keyframes popText {
+      0% { opacity: 0; transform: translateY(0); }
+      20% { opacity: 1; transform: translateY(-20px); }
+      100% { opacity: 0; transform: translateY(-60px); }
+    }
+
+    /* === ФОТО-СЕКЦИЯ === */
+    .photo-section {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+
+    .photo-section.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .photo-container {
+      max-width: 90%;
+      max-height: 80vh;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 15px 50px rgba(255,255,255,0.3);
+    }
+
+    .photo-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .photo-caption {
+      color: white;
+      font-size: 1.4rem;
+      margin-top: 1.5rem;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .btn {
+      margin-top: 1.5rem;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+    }
+
+    .btn-back {
+      background: #95a5a6;
+    }
+
+    /* === МУЗЫКА / КНОПКИ === */
+    .music-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.3);
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      backdrop-filter: blur(5px);
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 100;
+    }
+
+    /* === НИЖНЯЯ КНОПКА === */
+    .bottom-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Аудио (скрыто) -->
+  <audio id="soundPop" preload="auto">
+    <source src="https://www.soundjay.com/misc/sounds/balloon-pop-1.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="soundClick" preload="auto">
+    <source src="https://www.soundjay.com/buttons/sounds/button-09.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="soundOpen" preload="auto">
+    <source src="https://www.soundjay.com/misc/sounds/paper-rustle-1.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Кнопка музыки -->
+  <button class="music-btn" id="musicBtn">♪</button>
+
+  <!-- Конверт -->
+  <div class="envelope" id="envelope">
+    <div class="envelope-text">Нажми меня ❤️</div>
+  </div>
+
+  <!-- Основной текст -->
+  <div class="main-message" id="mainMessage">
+    <h1>Моя дорогая Евочка...</h1>
+    <p>Ты — свет в моём мире.<br>Спасибо, что ты есть. 💖 (п.с. сердечки нажимаются)</p>
+  </div>
+
+  <!-- Фото-секция -->
+  <div class="photo-section" id="photoSection">
+    <div class="photo-container">
+      <!-- Замени на своё фото -->
+      <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Ты">
+    </div>
+    <div class="photo-caption">
+      Ты — самая красивая, самая добрая, самая особенная...<br>Я люблю тебя безгранично ❤️
+    </div>
+    <button class="btn btn-back" id="backBtn">← Назад</button>
+  </div>
+
+  <!-- Нижняя кнопка -->
+  <div class="bottom-btn">
+    <button class="btn" id="showPhotoBtn">тык сюда 📸</button>
+  </div>
+
+  <script>
+    // === ЗВУКИ ===
+    const soundPop = document.getElementById('soundPop');
+    const soundClick = document.getElementById('soundClick');
+    const soundOpen = document.getElementById('soundOpen');
+    const musicBtn = document.getElementById('musicBtn');
+
+    function playSound(sound) {
+      sound.currentTime = 0;
+      sound.play().catch(e => console.log("Sound play blocked:", e));
+    }
+
+    // === ВИБРАЦИЯ (если поддерживается) ===
+    function vibrate(pattern) {
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    }
+
+    // === КНОПКИ ===
+    musicBtn.addEventListener('click', () => {
+      playSound(soundClick);
+      vibrate(20);
+      musicBtn.textContent = musicBtn.textContent === '♪' ? '⏸' : '♪';
+    });
+
+    document.getElementById('showPhotoBtn').addEventListener('click', () => {
+      playSound(soundClick);
+      vibrate(50);
+      document.getElementById('photoSection').classList.add('active');
+    });
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      playSound(soundClick);
+      vibrate(30);
+      document.getElementById('photoSection').classList.remove('active');
+    });
+
+    // === ОТКРЫТИЕ КОНВЕРТА ===
+    document.getElementById('envelope').addEventListener('click', () => {
+      playSound(soundOpen);
+      vibrate(100);
+      document.getElementById('envelope').classList.add('closed');
+      setTimeout(() => {
+        document.getElementById('mainMessage').classList.add('show');
+        createHearts();
+      }, 800);
+    });
+
+    // === СООБЩЕНИЯ ===
+    const messages = [
+      "Я тебя люблю 💖",
+      "Ты лучшая!",
+      "Ты очень красивая ✨",
+      "Любимая...",
+      "Идеальная ❤️",
+      "Ты — моя мечта 🌸",
+      "С тобой всё идеально 💫",
+      "Ты делаешь меня счастливым 😊",
+      "Ты — мой ангел 🕊️",
+      "Ты сводишь меня с ума 🔥",
+      "Ты — моя вселенная 🌌",
+      "Ты — причина моей улыбки 😍"
+    ];
+
+    function createHearts() {
+      for (let i = 0; i < 30; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.innerHTML = '❤️';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.fontSize = (Math.random() * 20 + 18) + 'px';
+        heart.style.animationDuration = (Math.random() * 8 + 8) + 's';
+        heart.style.animationDelay = Math.random() * 5 + 's';
+        heart.style.color = ['#ff4d6d', '#ff758f', '#ff9aa7', '#ffb3c6'][Math.floor(Math.random() * 4)];
+
+        heart.addEventListener('click', (e) => {
+          playSound(soundPop);
+          vibrate(30);
+
+          // Лопаем
+          heart.classList.add('pop');
+
+          // Искры (огонь)
+          for (let j = 0; j < 8; j++) {
+            const spark = document.createElement('div');
+            spark.className = 'spark';
+            spark.innerHTML = '✨';
+            spark.style.left = e.clientX + 'px';
+            spark.style.top = e.clientY + 'px';
+            spark.style.color = ['#ff6b6b', '#ff9e6d', '#ffd166'][Math.floor(Math.random() * 3)];
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 30 + Math.random() * 50;
+            spark.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+            spark.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+            document.body.appendChild(spark);
+            setTimeout(() => spark.remove(), 800);
+          }
+
+          // Текст
+          const text = document.createElement('div');
+          text.className = 'pop-text';
+          text.textContent = messages[Math.floor(Math.random() * messages.length)];
+          text.style.left = (e.clientX / window.innerWidth * 100) + 'vw';
+          text.style.top = (e.clientY / window.innerHeight * 100) + 'vh';
+          document.body.appendChild(text);
+          setTimeout(() => text.classList.add('show'), 10);
+          setTimeout(() => {
+            heart.remove();
+            text.remove();
+          }, 1600);
+        });
+
+        document.body.appendChild(heart);
+      }
+    }
+  </script>
+</body>
+</html>
