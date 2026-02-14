@@ -94,39 +94,48 @@
     }
 
     .main-message h1 {
-      font-size: 2.8rem;
+      font-size: 3.2rem;
+      margin-bottom: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
       color: #e74c3c;
-      margin-bottom: 1rem;
+      text-shadow: 0 4px 8px rgba(255,255,255,0.5);
     }
 
     .main-message p {
-      font-size: 1.4rem;
-      line-height: 1.6;
-      color: #555;
+      font-size: 1.5rem;
+      line-height: 1.7;
+      color: #444;
+      font-weight: 500;
     }
 
-    /* === СЕРДЦА — ВЗЛЕТАЮЩИЕ МЕДЛЕННО СНИЗУ === */
-    .heart {
+    /* === ЭМОДЗИ — ЛЕТАЮЩИЕ СНИЗУ === */
+    .emoji {
       position: absolute;
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       opacity: 0;
-      z-index: 0; /* не перекрывают текст */
-      animation: float 16s infinite ease-out; /* медленнее! */
-      cursor: pointer;
+      z-index: 0;
+      animation: float 18s infinite ease-out;
       user-select: none;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      text-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      filter: drop-shadow(0 2px 4px rgba(255,255,255,0.3));
+    }
+
+    /* Только сердечки — кликабельны */
+    .heart-emoji {
+      cursor: pointer;
     }
 
     @keyframes float {
       0% {
-        transform: translateY(100vh) rotate(0deg);
+        transform: translateY(100vh) rotate(0);
         opacity: 0;
       }
       5% {
         opacity: 0.8;
       }
       90% {
-        opacity: 0.6;
+        opacity: 0.5;
       }
       100% {
         transform: translateY(-120px) rotate(360deg);
@@ -135,20 +144,20 @@
     }
 
     /* === ЛОПАНЬЕ === */
-    .heart.pop {
-      animation: pop 0.4s forwards;
+    .heart-emoji.pop {
+      animation: pop 0.45s forwards;
     }
 
     @keyframes pop {
       0% { transform: scale(1) rotate(0); opacity: 1; }
-      50% { transform: scale(1.4) rotate(10deg); opacity: 0.8; }
+      50% { transform: scale(1.5) rotate(15deg); opacity: 0.9; }
       100% { transform: scale(0) rotate(90deg); opacity: 0; }
     }
 
-    /* === ИСКРЫ (ОГОНЬ) === */
+    /* === ИСКРЫ === */
     .spark {
       position: absolute;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       opacity: 0;
       z-index: 3;
       pointer-events: none;
@@ -157,29 +166,30 @@
 
     @keyframes spark {
       0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
-      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.5); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.6); }
     }
 
     /* === ВСПЛЫВАЮЩИЙ ТЕКСТ === */
     .pop-text {
       position: absolute;
-      font-weight: bold;
+      font-weight: 700;
       color: #e74c3c;
-      font-size: 1.2rem;
-      text-shadow: 0 2px 4px rgba(255,255,255,0.8);
+      font-size: 1.3rem;
+      text-shadow: 0 2px 6px rgba(255,255,255,0.8);
       opacity: 0;
       z-index: 5;
       pointer-events: none;
     }
 
     .pop-text.show {
-      animation: popText 1.5s forwards;
+      animation: popText 2.5s forwards;
     }
 
     @keyframes popText {
       0% { opacity: 0; transform: translateY(0); }
-      20% { opacity: 1; transform: translateY(-20px); }
-      100% { opacity: 0; transform: translateY(-60px); }
+      15% { opacity: 1; transform: translateY(-20px); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-80px); }
     }
 
     /* === ФОТО-СЕКЦИЯ === */
@@ -225,6 +235,7 @@
       margin-top: 1.5rem;
       text-align: center;
       max-width: 80%;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
     .btn {
@@ -266,7 +277,6 @@
       z-index: 100;
     }
 
-    /* === НИЖНЯЯ КНОПКА === */
     .bottom-btn {
       position: fixed;
       bottom: 30px;
@@ -307,7 +317,7 @@
   <div class="photo-section" id="photoSection">
     <div class="photo-container">
       <!-- Замени на своё фото -->
-      <img src
+      <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Ты">
     </div>
     <div class="photo-caption">
       Ты — самая красивая, самая добрая, самая особенная...<br>Я люблю тебя безгранично ❤️
@@ -331,11 +341,8 @@
       sound.play().catch(e => console.log("Sound play blocked:", e));
     }
 
-    // === ВИБРАЦИЯ (если поддерживается) ===
     function vibrate(pattern) {
-      if (navigator.vibrate) {
-        navigator.vibrate(pattern);
-      }
+      if (navigator.vibrate) navigator.vibrate(pattern);
     }
 
     // === КНОПКИ ===
@@ -364,77 +371,84 @@
       document.getElementById('envelope').classList.add('closed');
       setTimeout(() => {
         document.getElementById('mainMessage').classList.add('show');
-        createHearts();
+        createEmojis();
       }, 800);
     });
 
-    // === СООБЩЕНИЯ ===
+    // === СООБЩЕНИЯ (только для сердечек) ===
     const messages = [
-      "Я тебя люблю 💖",
-      "Ты лучшая!",
-      "Ты очень красивая ✨",
-      "Любимая...",
-      "Идеальная ❤️",
-      "Ты — моя мечта 🌸",
-      "С тобой всё идеально 💫",
-      "Ты делаешь меня счастливым 😊",
-      "Ты — мой ангел 🕊️",
-      "Ты сводишь меня с ума 🔥",
-      "Ты — моя вселенная 🌌",
-      "Ты — причина моей улыбки 😍"
+      "Я тебя люблю 💖", "Ты лучшая!", "Ты очень красивая ✨",
+      "Любимая...", "Идеальная ❤️", "Ты — моя мечта 🌸",
+      "С тобой всё идеально 💫", "Ты делаешь меня счастливым 😊",
+      "Ты — мой ангел 🕊️", "Ты сводишь меня с ума 🔥",
+      "Ты — моя вселенная 🌌", "Ты — причина моей улыбки 😍"
     ];
 
-    function createHearts() {
-      for (let i = 0; i < 30; i++) {
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        heart.innerHTML = '❤️';
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.fontSize = (Math.random() * 20 + 18) + 'px';
-        heart.style.animationDuration = (Math.random() * 8 + 12) + 's'; // 12–20 сек — медленно!
-        heart.style.animationDelay = Math.random() * 10 + 's'; // до 10 сек задержки
-        heart.style.color = ['#ff4d6d', '#ff758f', '#ff9aa7', '#ffb3c6'][Math.floor(Math.random() * 4)];
+    // === Список сердечек (только они вызывают текст) ===
+    const heartEmojis = ['❤️', '💖', '💗', '💕', '💓', '💘', '💝'];
+    // === Декоративные эмодзи (не кликабельны) ===
+    const decorEmojis = ['✨', '💫', '🌸', '🥰', '😻', '🫶', '🌟', '🔥'];
 
-        heart.addEventListener('click', (e) => {
-          playSound(soundPop);
-          vibrate(30);
+    function createEmojis() {
+      for (let i = 0; i < 25; i++) {
+        const isHeart = Math.random() > 0.5; // ~50% сердечек
+        const emojiList = isHeart ? heartEmojis : decorEmojis;
+        const emojiChar = emojiList[Math.floor(Math.random() * emojiList.length)];
 
-          heart.classList.add('pop');
+        const el = document.createElement('div');
+        el.classList.add('emoji');
+        if (isHeart) el.classList.add('heart-emoji');
+        el.innerHTML = emojiChar;
 
-          // Искры
-          for (let j = 0; j < 8; j++) {
-            const spark = document.createElement('div');
-            spark.className = 'spark';
-            spark.innerHTML = '✨';
-            spark.style.left = e.clientX + 'px';
-            spark.style.top = e.clientY + 'px';
-            spark.style.color = ['#ff6b6b', '#ff9e6d', '#ffd166'][Math.floor(Math.random() * 3)];
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 30 + Math.random() * 50;
-            spark.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
-            spark.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
-            document.body.appendChild(spark);
-            setTimeout(() => spark.remove(), 800);
-          }
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.fontSize = (Math.random() * 22 + 20) + 'px';
+        el.style.animationDuration = (Math.random() * 10 + 14) + 's';
+        el.style.animationDelay = Math.random() * 12 + 's';
+        el.style.color = isHeart 
+          ? ['#ff4d6d', '#ff758f', '#ff9aa7', '#ffb3c6'][Math.floor(Math.random() * 4)]
+          : ['#ffd166', '#a0c4ff', '#b5eaea', '#9bf6ff'][Math.floor(Math.random() * 4)];
 
-          // Текст
-          const text = document.createElement('div');
-          text.className = 'pop-text';
-          text.textContent = messages[Math.floor(Math.random() * messages.length)];
-          text.style.left = (e.clientX / window.innerWidth * 100) + 'vw';
-          text.style.top = (e.clientY / window.innerHeight * 100) + 'vh';
-          document.body.appendChild(text);
-          setTimeout(() => text.classList.add('show'), 10);
-          setTimeout(() => {
-            heart.remove();
-            text.remove();
-          }, 1600);
-        });
+        // Только сердечки реагируют на клик
+        if (isHeart) {
+          el.addEventListener('click', (e) => {
+            playSound(soundPop);
+            vibrate(30);
+            el.classList.add('pop');
 
-        document.body.appendChild(heart);
+            // Искры
+            for (let j = 0; j < 8; j++) {
+              const spark = document.createElement('div');
+              spark.className = 'spark';
+              spark.innerHTML = '✨';
+              spark.style.left = e.clientX + 'px';
+              spark.style.top = e.clientY + 'px';
+              spark.style.color = ['#ff6b6b', '#ff9e6d', '#ffd166'][Math.floor(Math.random() * 3)];
+              const angle = Math.random() * Math.PI * 2;
+              const dist = 30 + Math.random() * 50;
+              spark.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+              spark.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+              document.body.appendChild(spark);
+              setTimeout(() => spark.remove(), 800);
+            }
+
+            // Текст
+            const text = document.createElement('div');
+            text.className = 'pop-text';
+            text.textContent = messages[Math.floor(Math.random() * messages.length)];
+            text.style.left = (e.clientX / window.innerWidth * 100) + 'vw';
+            text.style.top = (e.clientY / window.innerHeight * 100) + 'vh';
+            document.body.appendChild(text);
+            setTimeout(() => text.classList.add('show'), 10);
+            setTimeout(() => {
+              el.remove();
+              text.remove();
+            }, 2500);
+          });
+        }
+
+        document.body.appendChild(el);
       }
     }
   </script>
 </body>
 </html>
-
